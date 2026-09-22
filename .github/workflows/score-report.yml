@@ -1,0 +1,51 @@
+name: score-report
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  score-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 装工具链
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential python3
+
+      - name: 跑三个 target，把机器判定结果写进 summary
+        run: |
+          set -u
+          report=$(mktemp)
+          logs=$(mktemp -d)
+
+          {
+            echo "## score report"
+            echo
+            echo "| target | 结果 |"
+            echo "|---|---|"
+          } > "$report"
+
+          for n in 1 2 3; do
+            if make test$n > "$logs/test$n" 2>&1; then
+              echo "| \`make test$n\` | ✅ 通过 |" >> "$report"
+            else
+              echo "| \`make test$n\` | ❌ 失败 |" >> "$report"
+            fi
+          done
+
+          if [ -x build/test3 ]; then
+            out=$(timeout 10 ./build/test3)
+            code=$?
+            printf '\n任务三的 stdout：`%s`（退出码 %s）\n' "$out" "$code" >> "$report"
+          fi
+
+          for n in 1 2 3; do
+            printf '\n<details><summary>make test%s 输出</summary>\n\n```\n' "$n" >> "$report"
+            cat "$logs/test$n" >> "$report"
+            printf '```\n\n</details>\n' >> "$report"
+          done
+
+          cat "$report" >> "$GITHUB_STEP_SUMMARY"
