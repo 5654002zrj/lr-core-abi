@@ -15,7 +15,7 @@
 
 ---
 
-## 五分钟跑起来
+## 环境与测试
 
 ```bash
 sudo apt install build-essential python3   # 只需要一次
