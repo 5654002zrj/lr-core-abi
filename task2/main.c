@@ -22,7 +22,7 @@ int main(void) {
         size_t got = my_strlen(s);
         size_t want = strlen(s);
         if (got != want) {
-            printf("[Error]: my_strlen(\"%s\") = %lu，库函数 strlen = %lu\n", s,
+            printf("[Error]: my_strlen(\"%s\") = %lu,库函数 strlen = %lu\n", s,
                    (unsigned long)got, (unsigned long)want);
             return 1;
         }
